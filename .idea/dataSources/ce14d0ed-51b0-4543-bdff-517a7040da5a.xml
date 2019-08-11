@@ -1198,16 +1198,23 @@
       <DefaultExpression>1</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="281" parent="234" name="subject_student_id_fk">
+    <column id="281" parent="234" name="active">
+      <Position>4</Position>
+      <DataType>tinyint(1)|0s</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>0</DefaultExpression>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <index id="282" parent="234" name="subject_student_id_fk">
       <ColNames>student_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="282" parent="234" name="PRIMARY">
+    <key id="283" parent="234" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="283" parent="234" name="subject_student_id_fk">
+    <foreign-key id="284" parent="234" name="subject_student_id_fk">
       <ColNames>student_id</ColNames>
       <RefSchemaName>db</RefSchemaName>
       <RefTableName>student</RefTableName>
@@ -1215,46 +1222,46 @@
       <OnUpdate>cascade</OnUpdate>
       <OnDelete>cascade</OnDelete>
     </foreign-key>
-    <column id="284" parent="235" name="id">
+    <column id="285" parent="235" name="id">
       <Position>1</Position>
       <DataType>int(11)|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="285" parent="235" name="name">
+    <column id="286" parent="235" name="name">
       <Position>2</Position>
       <DataType>varchar(256)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="286" parent="235" name="subject_id">
+    <column id="287" parent="235" name="subject_id">
       <Position>3</Position>
       <DataType>int(11)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="287" parent="235" name="student_id">
+    <column id="288" parent="235" name="student_id">
       <Position>4</Position>
       <DataType>int(11)|0s</DataType>
       <NotNull>1</NotNull>
       <DefaultExpression>1</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="288" parent="235" name="topic_subject_id_fk">
+    <index id="289" parent="235" name="topic_subject_id_fk">
       <ColNames>subject_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="289" parent="235" name="topic_student_id_fk">
+    <index id="290" parent="235" name="topic_student_id_fk">
       <ColNames>student_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="290" parent="235" name="PRIMARY">
+    <key id="291" parent="235" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="291" parent="235" name="topic_subject_id_fk">
+    <foreign-key id="292" parent="235" name="topic_subject_id_fk">
       <ColNames>subject_id</ColNames>
       <RefSchemaName>db</RefSchemaName>
       <RefTableName>subject</RefTableName>
@@ -1262,7 +1269,7 @@
       <OnUpdate>cascade</OnUpdate>
       <OnDelete>cascade</OnDelete>
     </foreign-key>
-    <foreign-key id="292" parent="235" name="topic_student_id_fk">
+    <foreign-key id="293" parent="235" name="topic_student_id_fk">
       <ColNames>student_id</ColNames>
       <RefSchemaName>db</RefSchemaName>
       <RefTableName>student</RefTableName>

@@ -5,7 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.volodymyrpo.eit.eit-spring.iml" filepath="$PROJECT_DIR$/.idea/modules/com.volodymyrpo.eit.eit-spring.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.volodymyrpo.eit.eit-spring.main.iml" filepath="$PROJECT_DIR$/.idea/modules/com.volodymyrpo.eit.eit-spring.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.volodymyrpo.eit.eit-spring.test.iml" filepath="$PROJECT_DIR$/.idea/modules/com.volodymyrpo.eit.eit-spring.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/eit-spring.iml" filepath="$PROJECT_DIR$/eit-spring.iml" />
     </modules>
   </component>
 </project>

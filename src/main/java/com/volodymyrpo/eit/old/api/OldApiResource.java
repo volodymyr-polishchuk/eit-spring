@@ -57,7 +57,7 @@ public class OldApiResource {
 
     @GetMapping("all_subject.php")
     public List<SubjectDTO> getAllSubject() {
-        List<Subject> subjects = subjectRepository.findByStudent(getStudent());
+        List<Subject> subjects = subjectRepository.findByStudentAndActive(getStudent(), true);
 
         return subjects.stream()
                 .map(subject -> new SubjectDTO(subject.getId(), subject.getName()))
@@ -94,6 +94,18 @@ public class OldApiResource {
         subject.setStudent(getStudent());
         subjectRepository.save(subject);
         return ResponseEntity.ok(new SubjectDTO(subject.getId(), subject.getName()));
+    }
+
+    @PostMapping("delete_subject.php")
+    public ResponseEntity<DeleteMessageDTO> deleteSubject(@RequestBody DeleteSubjectDTO dto) {
+        Optional<Subject> subjectOptional = subjectRepository.findById(dto.getSubject_k());
+        if (subjectOptional.isPresent()) {
+            Subject subject = subjectOptional.get();
+            subject.setActive(false);
+            subjectRepository.save(subject);
+            return ResponseEntity.ok().body(new DeleteMessageDTO(subject.getId(), "Видалення успішне"));
+        }
+        return ResponseEntity.ok().body(new DeleteMessageDTO(dto.getSubject_k(), "Видалення не виконано. Такого предмету не існую в базі даних"));
     }
 
     private Student getStudent() {
