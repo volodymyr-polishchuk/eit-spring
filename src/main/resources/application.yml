@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/db
+    url: jdbc:mysql://localhost:3306/db?characterEncoding=UTF-8
     driver-class-name: com.mysql.jdbc.Driver
     username: root
     password: root
@@ -17,6 +17,7 @@ spring:
     baseline-on-migrate: true
 server:
   port: 8080
+  connection-timeout:
 
 jwt:
   secret: 'Q7YqENaErYejz37UYTDA2E7czKNJ'
