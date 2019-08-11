@@ -150,9 +150,24 @@ public class OldApiResource {
     }
 
     @GetMapping("get_history.php")
-    public ResponseEntity<HistoryDTO> getHistory(HistoryRequestDTO dto) {
-        // TODO implement
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    public ResponseEntity<List<HistoryDTO>> getHistory(HistoryRequestDTO dto) {
+        if (dto.getGroup()) {
+            return ResponseEntity.ok(lessonRepository.getGroupedHistory(
+                    dto.getSubject(),
+                    getStudent().getId(),
+                    LessonStatus.FINISHED.getId(),
+                    dto.getFrom_date().isEmpty() ? null : dto.getFrom_date(),
+                    dto.getTo_date().isEmpty() ? null : dto.getTo_date()
+            ));
+        } else {
+            return ResponseEntity.ok(lessonRepository.getHistory(
+                    dto.getSubject(),
+                    getStudent().getId(),
+                    LessonStatus.FINISHED.getId(),
+                    dto.getFrom_date().isEmpty() ? null : dto.getFrom_date(),
+                    dto.getTo_date().isEmpty() ? null : dto.getTo_date()
+            ));
+        }
     }
 
     @GetMapping("get_statistics.php")
