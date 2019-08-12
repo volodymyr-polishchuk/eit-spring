@@ -21,7 +21,7 @@ server:
 
 jwt:
   secret: 'Q7YqENaErYejz37UYTDA2E7czKNJ'
-  expiration: 60400
+  expiration: 604000
   header: 'Authorization'
   route:
     authentication:

@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
 
 @RestController
-@CrossOrigin(origins = "${cross.origin}")
+@CrossOrigin
 public class AuthenticationRestController {
     @Value("${jwt.header}")
     private String tokenHeader;
