@@ -1,24 +1,19 @@
-<div class="main__wrapper">
-  <div class="main__container">
-    <app-create-lesson
-      style="flex: 3"
-      class="card"
-      (onCreateLesson)="createLesson($event)">
-    </app-create-lesson>
+<div class="main__container">
+  <app-create-lesson
+    class="card"
+    (onCreateLesson)="createLesson($event)">
+  </app-create-lesson>
 
-    <app-active-lessons
-      style="flex: 5"
-      class="card"
-      [lessons]="lessons"
-      [loadData]="loadLessons"
-      (successfulLesson)="successfulLesson($event)"
-      (deleteLesson)="deleteLesson($event)">
-    </app-active-lessons>
+  <app-active-lessons
+    class="card"
+    [lessons]="lessons"
+    [loadData]="loadLessons"
+    (successfulLesson)="successfulLesson($event)"
+    (deleteLesson)="deleteLesson($event)">
+  </app-active-lessons>
 
-    <app-hint *ngIf="subjectForHintLoad"
-      style="flex: 3; flex-basis: 400px"
-      class="card"
-      [subjects]="subjectsForHint">
-    </app-hint>
-  </div>
+  <app-hint *ngIf="subjectForHintLoad"
+    class="card"
+    [subjects]="subjectsForHint">
+  </app-hint>
 </div>
