@@ -1,0 +1,19 @@
+<div class="result__item__wrapper">
+  <mat-divider></mat-divider>
+  <br>
+  <div class="result__item__main">
+    <div class="result__item__left">
+      <span class="result__mini__text">{{ getDate() }}</span>
+      <span><b>{{ lessonInHistory.subject.name }}</b></span>
+      <span class="result__mini__text">{{ lessonInHistory.topic.name }}</span>
+    </div>
+    <div class="result__item__timer">
+      <span class="result__mini__text">Від:&nbsp;{{ getStartTime() }}</span>
+      <span class="result__mini__text">До:&nbsp;{{ getEndTime() }}</span>
+    </div>
+  </div>
+
+  <div class="bottom__pie">
+    <hr style="flex-grow: 1">&nbsp;<span>Всього:&nbsp;{{ getSum() }}</span>
+  </div>
+</div>

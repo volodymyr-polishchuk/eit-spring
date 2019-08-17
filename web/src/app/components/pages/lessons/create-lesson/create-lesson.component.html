@@ -1,0 +1,36 @@
+<mat-card class="main__container">
+  <mat-card-title>Створення зайняття</mat-card-title>
+  <mat-card-content style="display: flex; flex-direction: column">
+    <mat-form-field>
+      <mat-label>Предмет</mat-label>
+      <select matNativeControl required (change)="updateTopicsList($event)" #subject_select>
+        <option *ngFor="let subject of subjects" [value]="subject.key">{{ subject.name }}</option>
+      </select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <input
+        id="topicInput"
+        type="text"
+        placeholder="Тема"
+        aria-label="Number"
+        matInput
+        [matAutocomplete]="auto"
+        [formControl]="topicControl"
+        required
+        #topic_input>
+      <mat-autocomplete #auto="matAutocomplete">
+        <mat-option *ngFor="let topic of filteredTopics | async" [value]="topic.name">
+          {{ topic.name }}
+          <div class="topic__option__delete__button__wrapper">
+            <div class="topic__option__delete__button" (click)="removeTopic(topic)">X</div>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button color="accent" (click)="startLesson(subject_select, topic_input)">Розпочати</button>
+  </mat-card-actions>
+</mat-card>

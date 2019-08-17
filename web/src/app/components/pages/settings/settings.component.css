@@ -1,0 +1,20 @@
+.main__wrapper {
+  width: 100%;
+}
+
+.main__container {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.card {
+  margin: 4px;
+}
+
+@media all and (max-width: 799px) {
+  .settings__left__panel {
+    display: none;
+  }
+}

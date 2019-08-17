@@ -1,0 +1,31 @@
+<div class="lesson__block">
+  <mat-divider></mat-divider>
+  <br>
+  <div class="upper__pie">
+    <div class="left__pie">
+      {{ lesson.name }}<br>
+      {{ lesson.topic.name }}
+    </div>
+    <div>
+      {{ timeLine }}
+    </div>
+  </div>
+
+  <div class="bottom__pie">
+    <div>
+      <button
+        mat-stroked-button
+        color="accent"
+        class="successful__button"
+        (click)="successfulLesson()">
+        Завершити
+      </button>
+      <button
+        mat-stroked-button
+        color="warn"
+        (click)="deleteLesson()">
+        Видалити
+      </button>
+    </div>
+  </div>
+</div>
