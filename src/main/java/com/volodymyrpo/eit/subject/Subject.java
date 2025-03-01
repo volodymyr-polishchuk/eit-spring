@@ -21,4 +21,7 @@ public class Subject {
     @ManyToOne(targetEntity = Student.class)
     private Student student;
 
+    @Column(name = "active")
+    private Boolean active;
+
 }

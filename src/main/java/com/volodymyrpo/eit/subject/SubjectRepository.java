@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface SubjectRepository extends JpaRepository<Subject, Integer> {
 
-    List<Subject> findByStudent(Student student);
+    List<Subject> findByStudentAndActive(Student student, Boolean active);
 
     Subject findByName(String name);
 }
