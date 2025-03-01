@@ -13,11 +13,15 @@ import com.volodymyrpo.eit.topic.Topic;
 import com.volodymyrpo.eit.topic.TopicRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -33,12 +37,14 @@ public class OldApiResource {
     private final SubjectRepository subjectRepository;
     private final TopicRepository topicRepository;
     private final StudentRepository studentRepository;
+    private final AuthenticationManager authenticationManager;
 
-    public OldApiResource(LessonRepository lessonRepository, SubjectRepository subjectRepository, TopicRepository topicRepository, StudentRepository studentRepository) {
+    public OldApiResource(LessonRepository lessonRepository, SubjectRepository subjectRepository, TopicRepository topicRepository, StudentRepository studentRepository, AuthenticationManager authenticationManager) {
         this.lessonRepository = lessonRepository;
         this.subjectRepository = subjectRepository;
         this.topicRepository = topicRepository;
         this.studentRepository = studentRepository;
+        this.authenticationManager = authenticationManager;
     }
 
     @GetMapping("all_lessons.php")
@@ -47,7 +53,7 @@ public class OldApiResource {
 
         return lessons.stream()
                 .map(lesson -> {
-                    long now = Instant.now().toEpochMilli();
+                    long now = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
                     long dateStartMilli = lesson.getDateStart().toInstant(ZoneOffset.UTC).toEpochMilli();
                     long diffInSeconds = (now - dateStartMilli) / 1000;
                     return new AllLessonsDTO(
@@ -89,8 +95,15 @@ public class OldApiResource {
 
     @PostMapping("change_password.php")
     public ResponseEntity<MessageDTO> changePassword(@RequestBody ChangePasswordDTO dto) {
-        // TODO implement
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageDTO("no implementation"));
+        Student student = getStudent();
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getLogin(), dto.getOld_password()));
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new MessageDTO("Wrong old password"));
+        }
+        student.setPassword("{bcrypt}" + BCrypt.hashpw(dto.getNew_password(), BCrypt.gensalt()));
+        studentRepository.save(student);
+        return ResponseEntity.ok(new MessageDTO("Пароль змінений успішно"));
     }
 
     @PostMapping("create_subject.php")
@@ -102,6 +115,7 @@ public class OldApiResource {
         Subject subject = new Subject();
         subject.setName(dto.getSubject_name());
         subject.setStudent(getStudent());
+        subject.setActive(true);
         subjectRepository.save(subject);
         return ResponseEntity.ok(new SubjectDTO(subject.getId(), subject.getName()));
     }

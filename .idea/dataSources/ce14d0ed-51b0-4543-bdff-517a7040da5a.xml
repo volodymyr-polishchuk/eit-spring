@@ -1248,20 +1248,27 @@
       <DefaultExpression>1</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="289" parent="235" name="topic_subject_id_fk">
+    <column id="289" parent="235" name="active">
+      <Position>5</Position>
+      <DataType>tinyint(1)|0s</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>1</DefaultExpression>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <index id="290" parent="235" name="topic_subject_id_fk">
       <ColNames>subject_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="290" parent="235" name="topic_student_id_fk">
+    <index id="291" parent="235" name="topic_student_id_fk">
       <ColNames>student_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="291" parent="235" name="PRIMARY">
+    <key id="292" parent="235" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="292" parent="235" name="topic_subject_id_fk">
+    <foreign-key id="293" parent="235" name="topic_subject_id_fk">
       <ColNames>subject_id</ColNames>
       <RefSchemaName>db</RefSchemaName>
       <RefTableName>subject</RefTableName>
@@ -1269,7 +1276,7 @@
       <OnUpdate>cascade</OnUpdate>
       <OnDelete>cascade</OnDelete>
     </foreign-key>
-    <foreign-key id="293" parent="235" name="topic_student_id_fk">
+    <foreign-key id="294" parent="235" name="topic_student_id_fk">
       <ColNames>student_id</ColNames>
       <RefSchemaName>db</RefSchemaName>
       <RefTableName>student</RefTableName>

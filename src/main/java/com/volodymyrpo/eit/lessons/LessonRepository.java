@@ -35,7 +35,7 @@ public interface LessonRepository extends JpaRepository<Lesson, Integer> {
 
     @Query(value = "SELECT s.name AS subject_name,\n" +
             "       s.sum_seconds AS seconds,\n" +
-            "       SEC_TO_TIME(s.sum_seconds) AS formatted_time\n" +
+            "       CONCAT(SEC_TO_TIME(s.sum_seconds)) AS formatted_time\n" +
             "  FROM (SELECT subject.name AS name,\n" +
             "              SUM(UNIX_TIMESTAMP(date_end) - UNIX_TIMESTAMP(date_start)) AS sum_seconds\n" +
             "         FROM lesson\n" +
