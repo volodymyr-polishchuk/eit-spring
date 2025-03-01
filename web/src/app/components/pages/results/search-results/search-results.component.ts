@@ -10,7 +10,7 @@ import {MatPaginator} from '@angular/material';
 export class SearchResultsComponent implements OnInit, OnChanges {
 
   @Input() foundedLessonsInHistory: Array<LessonInHistory> = [];
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   pageLessonsInHistory: Array<LessonInHistory> = [];
   constructor() { }
 
