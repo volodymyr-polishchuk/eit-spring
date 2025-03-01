@@ -24,7 +24,8 @@ public interface SubjectRepository extends JpaRepository<Subject, Integer> {
             "                        AND UNIX_TIMESTAMP(lesson.date_start) < UNIX_TIMESTAMP(CURDATE())) \n" +
             "                        AND lesson.lesson_status_id = :lesson_status_id\n" +
             "                  GROUP BY lesson.subject_id)\n" +
-            "       AND student_id LIKE :student_id\n", nativeQuery = true)
+            "       AND student_id LIKE :student_id\n" +
+            "       AND subject.active IS TRUE", nativeQuery = true)
     List<SubjectThatNotLearnYesterdayDTO> getSubjectThatNotLearnYesterday(
             @Param("student_id") Integer id,
             @Param("lesson_status_id") Integer lessonStatusId
