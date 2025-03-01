@@ -4,11 +4,11 @@ import lombok.Data;
 
 @Data
 public class AllThemeDTO {
-    Integer k;
+    String k;
     String name;
 
     public AllThemeDTO(Integer k, String name) {
-        this.k = k;
+        this.k = k.toString();
         this.name = name;
     }
 }

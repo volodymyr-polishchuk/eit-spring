@@ -4,13 +4,13 @@ import lombok.Data;
 
 @Data
 public class AllLessonsDTO {
-    private Integer lessonID;
+    private String lessonID;
     private String lessonName;
     private String themeName;
     private Long timeToNowDiff;
 
     public AllLessonsDTO(Integer lessonID, String lessonName, String themeName, Long timeToNowDiff) {
-        this.lessonID = lessonID;
+        this.lessonID = lessonID.toString();
         this.lessonName = lessonName;
         this.themeName = themeName;
         this.timeToNowDiff = timeToNowDiff;
