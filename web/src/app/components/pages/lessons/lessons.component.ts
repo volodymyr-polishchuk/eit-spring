@@ -49,6 +49,7 @@ export class LessonsComponent implements OnInit {
     this.dataSource.startLesson(event.subject, event.topic)
       .subscribe(value => {
         console.log(value);
+        this.snackBar.open('Заняття розпочалося', 'Закрити', { duration: 1000 });
       }, error => {
         console.error(error);
       }, () => {
