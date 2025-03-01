@@ -1,25 +1,17 @@
 plugins {
-    id 'org.springframework.boot' version '2.1.7.RELEASE'
     id 'java'
+    id 'application'
+    id 'org.springframework.boot' version '3.0.2'         // Update to a newer Boot version
+    id 'io.spring.dependency-management' version '1.1.0'
 }
-
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'application'
-apply plugin: 'java'
-apply plugin: 'org.springframework.boot'
 
 group = 'com.volodymyrpo.eit'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
 
-configurations {
-    developmentOnly
-    runtimeClasspath {
-        extendsFrom developmentOnly
-    }
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
+java {
+    // Adjust if you need a different Java version:
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
@@ -27,22 +19,43 @@ repositories {
 }
 
 dependencies {
+    // Spring Boot Starters
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.flywaydb:flyway-core'
-    compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    compile 'io.jsonwebtoken:jjwt:0.7.0'
+
+    // Database & Flyway
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-mysql'
+    // Using runtimeOnly so it isn't on the compile classpath
+    runtimeOnly 'mysql:mysql-connector-java'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // JWT
+    // You may update the jjwt version if desired:
+    // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.12.6'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.12.6'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.12.6'
+
+    // Dev & Testing
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-mainClassName = 'com.volodymyrpo.eit.WebApplication'
+application {
+    mainClass = 'com.volodymyrpo.eit.WebApplication'
+}
 
+// Optional: additional resource processing
 processResources {
     from 'src/main/resources'
 }
 
+tasks.processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

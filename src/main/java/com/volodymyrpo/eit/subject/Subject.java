@@ -3,7 +3,7 @@ package com.volodymyrpo.eit.subject;
 import com.volodymyrpo.eit.student.Student;
 import lombok.Data;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "subject")

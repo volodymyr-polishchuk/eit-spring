@@ -6,7 +6,7 @@ import com.volodymyrpo.eit.subject.Subject;
 import com.volodymyrpo.eit.topic.Topic;
 import lombok.Data;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

@@ -1,19 +1,16 @@
-version: '3'
 services:
   my_db:
-    image: 'mysql:5.7'
+    image: 'mysql:8'
     restart: on-failure
     environment:
       MYSQL_DATABASE: 'db'
-      MYSQL_USER: 'root'
-      MYSQL_PASSWORD: 'root'
       MYSQL_ROOT_PASSWORD: 'root'
     ports:
       - '3306:3306'
     expose:
       - '3306'
     volumes:
-      - /Users/polishchuk/Downloads/hworknet_test2.sql:/usr/dump.sql
+      - my_db_data:/var/lib/mysql
   api:
     build:
       context: .
@@ -30,4 +27,6 @@ services:
     depends_on:
       - my_db
 
-
+volumes:
+  my_db_data:
+    driver: local

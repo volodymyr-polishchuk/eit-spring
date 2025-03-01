@@ -4,7 +4,7 @@ import com.volodymyrpo.eit.student.Student;
 import com.volodymyrpo.eit.subject.Subject;
 import lombok.Data;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "topic")

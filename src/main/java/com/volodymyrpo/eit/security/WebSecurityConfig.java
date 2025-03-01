@@ -8,18 +8,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+@EnableMethodSecurity(prePostEnabled = true)  // Replaces @EnableGlobalMethodSecurity
+public class WebSecurityConfig {
 
     @Value("${jwt.header}")
     private String tokenHeader;
@@ -28,9 +30,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private String authenticationPath;
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-
     private final StudentService studentService;
-
     private final JwtAuthorizationTokenFilter jwtAuthorizationTokenFilter;
 
     @Autowired
@@ -42,55 +42,62 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         this.jwtAuthorizationTokenFilter = jwtAuthorizationTokenFilter;
     }
 
+    /**
+     * In Spring Security 6, we define the filter chain via a bean
+     * instead of overriding configure(HttpSecurity).
+     */
     @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
-
-    @Override
-    public void configure(WebSecurity web) {
-        web
-                .ignoring()
-                .antMatchers(
-                        HttpMethod.POST,
-                        authenticationPath
-                )
-                .and()
-                .ignoring()
-                .antMatchers(
-                        HttpMethod.GET,
-                        "/",
-                        "/*.html",
-                        "/favicon.ico",
-                        "/**/*.html",
-                        "/**/*.css",
-                        "/**/*.js"
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                // If you want CORS enabled:
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                // Use your custom AuthenticationEntryPoint:
+                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                // Stateless session policy:
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Request authorization:
+                .authorizeHttpRequests(auth -> auth
+                        // Any endpoints you want to permit:
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, authenticationPath).permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/",
+                                "/*.html",
+                                "/favicon.ico",
+                                "/**/*.html",
+                                "/**/*.css",
+                                "/**/*.js").permitAll()
+                        // Then secure everything else:
+                        .anyRequest().authenticated()
                 );
+
+        // Add the JWT filter before UsernamePasswordAuthenticationFilter
+        http.addFilterBefore(jwtAuthorizationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // Optionally configure headers:
+        http.headers(headers -> {
+            headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin); // if you need H2 console frames, for example
+            headers.cacheControl(Customizer.withDefaults());   // disable caching
+        });
+
+        return http.build();
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-                .cors().and()
-                .csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests()
-                .antMatchers("/auth/**").permitAll()
-                .anyRequest().authenticated();
-        http
-                .addFilterBefore(jwtAuthorizationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+    /**
+     * Create an AuthenticationManager bean the "new" way:
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        // Configure the builder with our StudentService:
+        AuthenticationManagerBuilder builder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
 
-        // не впевнений чи треба -- відключення кешів
-        http
-                .headers()
-                .frameOptions().sameOrigin()
-                .cacheControl();
-    }
+        builder
+                .userDetailsService(studentService);
+        // .passwordEncoder(...); // if you need a PasswordEncoder
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(studentService);
+        // Return the fully built authentication manager
+        return builder.build();
     }
 }
