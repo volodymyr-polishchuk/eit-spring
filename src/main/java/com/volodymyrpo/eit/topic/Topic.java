@@ -12,6 +12,7 @@ import javax.persistence.*;
 public class Topic {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
@@ -23,4 +24,7 @@ public class Topic {
 
     @ManyToOne(targetEntity = Student.class)
     private Student student;
+
+    @Column(name = "active")
+    private Boolean active;
 }

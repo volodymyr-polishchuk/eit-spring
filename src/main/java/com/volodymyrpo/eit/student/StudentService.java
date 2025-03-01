@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Service("jwtUserDetailsService")
 public class StudentService implements UserDetailsService {
@@ -23,11 +24,10 @@ public class StudentService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Student user = studentRepository.findByLogin(username);
+        Optional<Student> studentOptional = studentRepository.findByLogin(username);
 
-        if (Objects.isNull(user)) {
-            throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
-        }
-        return user;
+        return studentOptional.orElseThrow(
+                () -> new UsernameNotFoundException(String.format("No user found with username '%s'.", username))
+        );
     }
 }

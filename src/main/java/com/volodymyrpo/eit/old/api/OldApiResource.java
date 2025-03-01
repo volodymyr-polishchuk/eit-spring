@@ -6,6 +6,7 @@ import com.volodymyrpo.eit.lessons.status.LessonStatus;
 import com.volodymyrpo.eit.old.api.dto.*;
 import com.volodymyrpo.eit.security.exception.NotFoundException;
 import com.volodymyrpo.eit.student.Student;
+import com.volodymyrpo.eit.student.StudentRepository;
 import com.volodymyrpo.eit.subject.Subject;
 import com.volodymyrpo.eit.subject.SubjectRepository;
 import com.volodymyrpo.eit.topic.Topic;
@@ -13,6 +14,7 @@ import com.volodymyrpo.eit.topic.TopicRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -30,11 +32,13 @@ public class OldApiResource {
     private final LessonRepository lessonRepository;
     private final SubjectRepository subjectRepository;
     private final TopicRepository topicRepository;
+    private final StudentRepository studentRepository;
 
-    public OldApiResource(LessonRepository lessonRepository, SubjectRepository subjectRepository, TopicRepository topicRepository) {
+    public OldApiResource(LessonRepository lessonRepository, SubjectRepository subjectRepository, TopicRepository topicRepository, StudentRepository studentRepository) {
         this.lessonRepository = lessonRepository;
         this.subjectRepository = subjectRepository;
         this.topicRepository = topicRepository;
+        this.studentRepository = studentRepository;
     }
 
     @GetMapping("all_lessons.php")
@@ -66,7 +70,7 @@ public class OldApiResource {
 
     @GetMapping(value = "all_themes.php", params = {"subject_code"})
     public List<AllThemeDTO> getAllTheme(@RequestParam("subject_code") Integer subjectId) {
-        List<Topic> topics = topicRepository.findBySubjectId(subjectId);
+        List<Topic> topics = topicRepository.findBySubjectIdAndActive(subjectId, true);
 
         return topics.stream()
                 .map(topic -> new AllThemeDTO(topic.getId(), topic.getName()))
@@ -81,6 +85,12 @@ public class OldApiResource {
         lesson.setDateEnd(LocalDateTime.now());
         lessonRepository.save(lesson);
         return lesson.getId();
+    }
+
+    @PostMapping("change_password.php")
+    public ResponseEntity<MessageDTO> changePassword(@RequestBody ChangePasswordDTO dto) {
+        // TODO implement
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageDTO("no implementation"));
     }
 
     @PostMapping("create_subject.php")
@@ -105,7 +115,117 @@ public class OldApiResource {
             subjectRepository.save(subject);
             return ResponseEntity.ok().body(new DeleteMessageDTO(subject.getId(), "Видалення успішне"));
         }
-        return ResponseEntity.ok().body(new DeleteMessageDTO(dto.getSubject_k(), "Видалення не виконано. Такого предмету не існую в базі даних"));
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new DeleteMessageDTO(dto.getSubject_k(), "Видалення не виконано. Такого предмету не існую в базі даних"));
+    }
+
+    @PostMapping("delete_topic.php")
+    public ResponseEntity<DeleteMessageDTO> deleteTopic(@RequestBody DeleteTopicDTO dto) {
+        Optional<Topic> topicOptional = topicRepository.findByIdAndStudent(dto.getTopic_id(), getStudent());
+        if (topicOptional.isPresent()) {
+            Topic topic = topicOptional.get();
+            topic.setActive(false);
+            topicRepository.save(topic);
+            return ResponseEntity.ok(new DeleteMessageDTO(topic.getId(), "Видалення успішне"));
+        }
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new DeleteMessageDTO(dto.getTopic_id(), "Не можливо видалити. За цією темою вже існують зайняття"));
+    }
+
+    @GetMapping("get_efficiency.php")
+    public EfficiencyDTO getEfficiency() {
+        return lessonRepository.getEfficiency(getStudent().getId());
+    }
+
+    @GetMapping("get_history.php")
+    public ResponseEntity<HistoryDTO> getHistory(HistoryRequestDTO dto) {
+        // TODO implement
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    }
+
+    @GetMapping("get_statistics.php")
+    public List<StatisticDTO> getStatistic() {
+        return lessonRepository.getStatistic(getStudent().getId());
+    }
+
+    @GetMapping("get_statistics_for_days.php")
+    public List<StatisticForDaysDTO> getStatisticForDays() {
+        return lessonRepository.getStatisticForDays(getStudent().getId());
+    }
+
+    @GetMapping("get_subject_that_not_learn_yesterday.php")
+    public List<SubjectThatNotLearnYesterdayDTO> getStatisticThatNotLearnYesterday() {
+        return subjectRepository.getSubjectThatNotLearnYesterday(getStudent().getId(), LessonStatus.FINISHED.getId());
+    }
+
+    @GetMapping("get_user_info.php")
+    public UserInfoDTO getUserInfo() {
+        Student student = getStudent();
+        return new UserInfoDTO(student.getLogin(), student.getName(), student.getDescription());
+    }
+
+    @PostMapping("sign_up.php")
+    public ResponseEntity<SignUpOutDTO> signUp(@RequestBody SignUpInDTO dto) {
+        Optional<Student> studentWithSameLoginOptional = studentRepository.findByLogin(dto.getLogin());
+        if (!studentWithSameLoginOptional.isPresent()) {
+            Student student = new Student();
+            student.setLogin(dto.getLogin());
+            student.setEmail(dto.getEmail());
+            student.setName(dto.getName());
+            student.setPassword("{noop}" + dto.getPassword());
+            student.setDescription("");
+            student.setPasswordHash("");
+            student.setRole(1);
+            Student savedStudent = studentRepository.save(student);
+            return ResponseEntity.ok(new SignUpOutDTO(savedStudent.getId(), "successful"));
+        }
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new SignUpOutDTO(null, "already exist with login " + dto.getLogin()));
+    }
+
+    @PostMapping("start_lesson.php")
+    @Transactional
+    public MessageDTO startLesson(@RequestBody StartLessonDTO dto) throws NotFoundException {
+        Subject subject = subjectRepository.findById(dto.getSubject())
+                .orElseThrow(() -> new NotFoundException("Subject not exist with id = " + dto.getSubject()));
+
+        Topic topic;
+        Optional<Topic> topicOptional =  topicRepository.findByNameAndStudent(dto.getTheme(), getStudent());
+        if (topicOptional.isPresent()) {
+            topic = topicOptional.get();
+        } else {
+            Topic newTopic = new Topic();
+            newTopic.setName(dto.getTheme());
+            newTopic.setStudent(getStudent());
+            newTopic.setActive(true);
+            newTopic.setSubject(subject);
+            topic = topicRepository.save(newTopic);
+        }
+        Lesson lesson = new Lesson();
+        lesson.setSubject(subject);
+        lesson.setStudent(getStudent());
+        lesson.setLessonStatus(LessonStatus.ACTIVE);
+        lesson.setTopic(topic);
+        lesson.setDateStart(LocalDateTime.now());
+        lesson.setDateEnd(LocalDateTime.now());
+        Lesson savedLesson = lessonRepository.save(lesson);
+        return new MessageDTO("Insert successful. New lesson ID = [" + savedLesson.getId() + "]");
+    }
+
+    @PostMapping("success_lesson.php")
+    public Integer finishLesson(@RequestBody SuccessLessonDTO dto) throws NotFoundException {
+        Lesson lesson = lessonRepository.findById(dto.getLesson_id())
+                .orElseThrow(() -> new NotFoundException("Lesson not found with id = " + dto.getLesson_id()));
+
+        lesson.setLessonStatus(LessonStatus.FINISHED);
+        lesson.setDateEnd(LocalDateTime.now());
+        lessonRepository.save(lesson);
+        return lesson.getId();
+    }
+
+    @GetMapping({"get_user_token.php"})
+    @PostMapping({"login.php"})
+    public ResponseEntity<MessageDTO> noLongerSupported() {
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(new MessageDTO("Endpoint exist, but not longer supported"));
     }
 
     private Student getStudent() {
